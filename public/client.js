@@ -67,7 +67,7 @@ sendButton.addEventListener("click", sendMessage);
 textarea.addEventListener("keyup", (e) => {
     if (e.key === 'Enter') {
         mymsg(e.target.value);
-    }   
+    }
 });
 
 function sendMessage() {
@@ -91,26 +91,39 @@ const mymsg = (msg) => {
 
 function appendmessage(msg, type) {
     var maindiv = document.createElement('div'); // Corrected the 'div' tag
+    // userNameElement.textContent = "User: " + name; // Set the user's name dynamically
     maindiv.classList.add(type, 'message');
     var content = `<h4> ${msg.user}</h4><p>${msg.msg}</p><span class='timestamp'>${msg.timestamp}</span>
-                    <button class="delete-btn" onclick="deleteMessage(this)">Delete</button>
-                    <button class="edit-btn" onclick="editMessage(this)">Edit</button>`
+    <button class="delete-btn" onclick="deleteMessage(this)">Delete</button>
+    <button class="edit-btn" onclick="editMessage(this)">Edit</button>`
     var div = chatarea.appendChild(maindiv);
     div.innerHTML = content;
     chatarea.scrollTop = chatarea.scrollHeight; // Auto-scroll to the bottom
 }
 
+// function deleteMessage(button) {
+//     var messageDiv = button.parentElement;
+//     chatarea.removeChild(messageDiv);
+//     // You may want to emit a socket event to inform the server about the deletion.
+// }
+
 function deleteMessage(button) {
     var messageDiv = button.parentElement;
     chatarea.removeChild(messageDiv);
-    // You may want to emit a socket event to inform the server about the deletion.
+
+    // Get the message ID or any identifier associated with the deleted message
+    var messageId = messageDiv.getAttribute('data-message-id');
+
+    // Emit a socket event to inform the server about the deleted message
+    socket.emit('deleteMessage', messageId);
+    // console.log(messageId);
 }
 
 function editMessage(button) {
     var messageDiv = button.parentElement;
     var messageParagraph = messageDiv.querySelector('p');
     var newMessage = prompt('Edit the message:', messageParagraph.textContent);
-    
+
     if (newMessage !== null && newMessage.trim() !== "") {
         messageParagraph.textContent = newMessage;
         // You may want to emit a socket event to inform the server about the edit.
